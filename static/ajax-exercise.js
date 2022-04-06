@@ -25,13 +25,14 @@ function showWeather(evt) {
   evt.preventDefault();
   const zip = document.querySelector('#zipcode-field').value;
 
-  fetch(`/weather.json:?zipcode:${zip}`)
-  .then(response => response.json())
-  .then(responseData => {
-   
+  fetch(`/weather.json?zipcode=${zip}`)
+    .then(response => response.json())
+    .then(responseData => {
+      document
+        .querySelector('#weather-form')
+        .insertAdjacentHTML('beforeend', `<p>${responseData['forecast']}</p>`)
   });
 
-  // TODO: request weather with that URL and show the forecast in #weather-info
 }
 document.querySelector('#weather-form').addEventListener('submit', showWeather);
 
@@ -40,7 +41,30 @@ document.querySelector('#weather-form').addEventListener('submit', showWeather);
 function orderMelons(evt) {
   evt.preventDefault();
 
-  // TODO: show the result message after your form
-  // TODO: if the result code is ERROR, make it show up in red (see our CSS!)
+  const formInputs = {
+    melon_type: document.querySelector('#melon-type-field').value,
+    qty: document.querySelector('#qty-field').value,
+  };
+
+  fetch('/order-melons.json', {
+    method: 'POST',
+    body: JSON.stringify(formInputs),
+    headers: {'Content-Type': 'application/json'},
+  })
+    .then(response => response.json())
+    .then(responseData => {
+      const code = responseData['code'];
+      const message = responseData['msg'];
+
+      const orderStatus = document.querySelector('#order-status');
+      if (code === 'ERROR'){
+        orderStatus.classList.add('order-error');
+      }
+      orderStatus.innerText = `${message}`;
+    
+    })
+
+
 }
+
 document.querySelector('#order-form').addEventListener('submit', orderMelons);
